@@ -1,0 +1,31 @@
+# Root .gitignore for Life Engine
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Python virtual env
+venv/
+.venv/
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# Node
+node_modules/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

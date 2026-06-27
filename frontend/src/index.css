@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif;
+    @apply transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbars */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Premium Gradient */
+  .premium-gradient {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
+  }
+
+  .custom-shadow {
+    box-shadow: 0 10px 30px -5px rgba(15, 118, 110, 0.05),
+                0 4px 12px -2px rgba(15, 118, 110, 0.03);
+  }
+}
+
+/* Confetti animation */
+@keyframes confettiFall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  animation: confettiFall 3s linear forwards;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Task card hover */
+.task-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.task-card:hover {
+  transform: translateY(-2px) scale(1.005);
+}
+
+/* SEPIA / Book Read Mode */
+.sepia {
+  background-color: #f4ecd8 !important;
+  color: #433422 !important;
+}
+.sepia .bg-white,
+.sepia .dark\:bg-slate-900 {
+  background-color: #fcf8f0 !important;
+}
+.sepia .border-slate-100,
+.sepia .border-slate-200,
+.sepia .dark\:border-slate-800 {
+  border-color: #e4d7ba !important;
+}
+.sepia .text-slate-800,
+.sepia .text-slate-700,
+.sepia .text-slate-600,
+.sepia .dark\:text-slate-100 {
+  color: #433422 !important;
+}
+.sepia .text-slate-500,
+.sepia .text-slate-400 {
+  color: #7d6e5d !important;
+}
+.sepia .bg-slate-50,
+.sepia .dark\:bg-slate-800 {
+  background-color: #e8dfc7 !important;
+}
+.sepia .task-card {
+  background-color: #fcf8f0 !important;
+  border-color: #e4d7ba !important;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0d9488;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
