@@ -1,6 +1,6 @@
 // src/api/auth.js
 // ====================================================
-// Authentication API — Login, Register, Logout
+// Authentication API — Login, Register, OTP, Logout
 // ====================================================
 
 import apiClient from './client'
@@ -12,11 +12,26 @@ export const loginUser = async (username, password) => {
   // Returns: { access: "jwt_token", refresh: "refresh_token", user: {...} }
 }
 
-// নতুন ব্যবহারকারী রেজিস্ট্রেশন
+// নতুন ব্যবহারকারী রেজিস্ট্রেশন (legacy — no OTP)
 export const registerUser = async (userData) => {
   const response = await apiClient.post('/auth/register/', userData)
   return response.data
   // userData: { username, email, password, name }
+}
+
+// Step 1 — OTP পাঠানো (Gmail SMTP)
+export const sendOTP = async (userData) => {
+  const response = await apiClient.post('/auth/send-otp/', userData)
+  return response.data
+  // userData: { username, email, name, password }
+  // Returns: { message: "...", email: "..." }
+}
+
+// Step 2 — OTP যাচাই এবং অ্যাকাউন্ট তৈরি
+export const verifyOTP = async (email, otp_code) => {
+  const response = await apiClient.post('/auth/verify-otp/', { email, otp_code })
+  return response.data
+  // Returns: { access, refresh, user, message }
 }
 
 // টোকেন রিফ্রেশ

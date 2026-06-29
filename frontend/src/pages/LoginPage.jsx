@@ -25,6 +25,8 @@ export default function LoginPage() {
     try {
       await login(form.username, form.password)
       toast.success('স্বাগতম! আলহামদুলিল্লাহ 🎉')
+      // Redirect using location.href to ensure fresh load of Dashboard stats & tasks
+      window.location.href = '/'
     } catch (err) {
       toast.error('ভুল username বা password')
     } finally {
@@ -47,16 +49,16 @@ export default function LoginPage() {
         {/* Form Card */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 custom-shadow border border-slate-100 dark:border-slate-800">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
+            {/* Username / Email */}
             <div>
               <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5 uppercase tracking-wider">
-                ইউজারনেম
+                ইউজারনেম অথবা ইমেইল
               </label>
               <input
                 type="text"
                 value={form.username}
                 onChange={e => setForm({ ...form, username: e.target.value })}
-                placeholder="আপনার username লিখুন"
+                placeholder="ইউজারনেম অথবা জিমেইল লিখুন"
                 className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:bg-white dark:focus:bg-slate-950 dark:text-white transition-all"
               />
             </div>

@@ -9,7 +9,19 @@ import { useApp } from '../../context/AppContext'
 import { useAuth } from '../../context/AuthContext'
 import { toBengaliDigits, getRandomQuote, getBengaliDate } from '../../utils/helpers'
 
-const THEME_LABELS = { light: '☀️ লাইট মোড', dark: '🌙 ডার্ক মোড', sepia: '📖 বুক মোড' }
+const THEME_LABELS = { light: '☀️ উজ্জ্বল মোড (Light)', dark: '🌙 চোখের আরাম (Dark)', sepia: '📖 বই পাঠ (Sepia)' }
+
+function getBadge(percent) {
+  if (percent === 100) {
+    return { text: "🏆 সফল মুজাহিদ", className: "bg-emerald-500/20 text-emerald-200 border border-emerald-400" }
+  } else if (percent >= 70) {
+    return { text: "🚀 নিয়মিত কর্মবীর", className: "bg-teal-500/20 text-teal-100 border border-teal-300" }
+  } else if (percent >= 40) {
+    return { text: "⚡ আত্মিক যাত্রী", className: "bg-amber-500/20 text-amber-100 border border-amber-300" }
+  } else {
+    return { text: "🕌 দ্বীনের মুসাফির", className: "bg-white/10 text-teal-50 border border-white/20" }
+  }
+}
 
 export default function Header() {
   const { stats, profile, theme, cycleTheme } = useApp()
@@ -27,6 +39,7 @@ export default function Header() {
   const dashOffset    = circumference - (percent / 100) * circumference
 
   const userName = profile?.userName || 'লাইফ ইঞ্জিন'
+  const badge = getBadge(percent)
 
   return (
     <header className="premium-gradient text-white pt-8 pb-16 px-4 md:px-8 rounded-b-[2.5rem] md:rounded-b-[3.5rem] shadow-xl relative">
@@ -71,26 +84,19 @@ export default function Header() {
               <span className="font-bold text-teal-50">{THEME_LABELS[theme]}</span>
             </button>
 
-            {/* User Badge + Logout */}
-            <div className="relative">
-              <button
-                onClick={() => setShowLogout(!showLogout)}
-                className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 text-xs flex items-center gap-1.5 justify-center"
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-300" />
-                <span className="font-bold text-teal-50">{profile?.userName || 'আমার প্রোফাইল'}</span>
-              </button>
-              {showLogout && (
-                <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50 min-w-[120px]">
-                  <button
-                    onClick={logout}
-                    className="w-full px-4 py-2.5 text-xs text-rose-600 font-bold hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
-                  >
-                    লগআউট 🚪
-                  </button>
-                </div>
-              )}
+            {/* User Badge */}
+            <div className={`backdrop-blur-md px-4 py-2.5 rounded-2xl text-xs flex items-center gap-1.5 justify-center font-bold ${badge.className}`}>
+              <ShieldCheck className="w-4 h-4 text-emerald-300" />
+              <span>{badge.text}</span>
             </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={logout}
+              className="bg-rose-600/10 hover:bg-rose-600/20 backdrop-blur-md px-4 py-2.5 rounded-2xl text-xs flex items-center gap-1.5 justify-center font-bold transition-all border border-rose-500/20 text-rose-200 hover:text-white"
+            >
+              <span>লগআউট 🚪</span>
+            </button>
           </div>
         </div>
 
@@ -123,7 +129,7 @@ export default function Header() {
             {/* Quote + Streak Ring */}
             <div className="flex items-center justify-between md:justify-center border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6 gap-4">
               <p className="text-[11px] md:text-xs text-teal-100 text-left md:text-center font-medium max-w-[200px]">
-                {getRandomQuote()}
+                “আল্লাহর নিকট প্রিয় আমল তা-ই, যা নিয়মিত করা হয়।”
               </p>
               {/* Streak Ring */}
               <div className="relative w-16 h-16 md:w-20 md:h-20 aspect-square flex items-center justify-center shrink-0">
@@ -147,16 +153,6 @@ export default function Header() {
             </div>
           </div>
         </div>
-
-        {/* Active Formula Banner */}
-        {profile && (
-          <div className="mt-4 bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="text-sm font-bold text-teal-100">{profile.formulaTitle}</span>
-            <span className="bg-teal-50/20 text-teal-100 font-bold text-xs px-3 py-1 rounded-full border border-teal-100/20 self-start sm:self-auto">
-              {profile.formulaPhase}
-            </span>
-          </div>
-        )}
       </div>
     </header>
   )

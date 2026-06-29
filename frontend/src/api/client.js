@@ -15,12 +15,22 @@ const apiClient = axios.create({
   withCredentials: false,
 })
 
-// Request Interceptor — JWT token automatically attach করবে
+// Request Interceptor — JWT token automatically attach করবে (পাবলিক রাউট ছাড়া)
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('life_engine_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // লগইন, রেজিস্টার, OTP ইত্যাদি পাবলিক রিকোয়েস্টে টোকেন পাঠানোর দরকার নেই
+    const isPublicRoute = config.url && (
+      config.url.includes('/auth/login/') ||
+      config.url.includes('/auth/register/') ||
+      config.url.includes('/auth/send-otp/') ||
+      config.url.includes('/auth/verify-otp/')
+    )
+
+    if (!isPublicRoute) {
+      const token = localStorage.getItem('life_engine_token')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
     }
     return config
   },
@@ -31,7 +41,15 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isPublicRoute = error.config?.url && (
+      error.config.url.includes('/auth/login/') ||
+      error.config.url.includes('/auth/register/') ||
+      error.config.url.includes('/auth/send-otp/') ||
+      error.config.url.includes('/auth/verify-otp/')
+    )
+
+    // পাবলিক রাউটে 401 হলে লগইনে রিডাইরেক্ট করার প্রয়োজন নেই
+    if (error.response?.status === 401 && !isPublicRoute) {
       localStorage.removeItem('life_engine_token')
       localStorage.removeItem('life_engine_user')
       window.location.href = '/login'

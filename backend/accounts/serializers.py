@@ -32,6 +32,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             avoid_list=Profile.get_default_avoid_list(),
             resources=Profile.get_default_resources(),
         )
+        # Auto-seed default tasks
+        from tasks.models import Task, DEFAULT_TASKS
+        for i, task_data in enumerate(DEFAULT_TASKS):
+            Task.objects.create(user=user, order=i, **task_data)
+            
         return user
 
 
@@ -40,7 +45,20 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
+        username_or_email = data.get('username', '').strip()
+        password = data.get('password', '')
+
+        # Support email login
+        if '@' in username_or_email:
+            try:
+                user_obj = User.objects.get(email__iexact=username_or_email)
+                username = user_obj.username
+            except User.DoesNotExist:
+                username = username_or_email
+        else:
+            username = username_or_email
+
+        user = authenticate(username=username, password=password)
         if not user:
             raise serializers.ValidationError("ভুল username বা password।")
         if not user.is_active:

@@ -12,7 +12,7 @@ export default function ViewSwitcher() {
   const { currentView, setCurrentView } = useApp()
 
   return (
-    <div className="bg-slate-200/60 dark:bg-slate-900/80 p-1.5 rounded-2xl flex mb-6 border border-slate-200/30 dark:border-slate-800/40 max-w-2xl mx-auto mt-6">
+    <div className="bg-slate-200/60 dark:bg-slate-900/80 p-1.5 rounded-2xl flex mb-6 border border-slate-200/30 dark:border-slate-800/40 max-w-2xl mx-auto">
       {VIEWS.map(({ id, label, Icon }) => (
         <button
           key={id}

@@ -4,22 +4,9 @@ Seeds default tasks for a user if they have none.
 """
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from tasks.models import Task
+from tasks.models import Task, DEFAULT_TASKS
 
 User = get_user_model()
-
-DEFAULT_TASKS = [
-    {"text": "ফজরের নামাজ পড়া",              "cat": "namaz",     "xp": 30},
-    {"text": "কুরআন তিলাওয়াত — ১ পৃষ্ঠা",   "cat": "namaz",     "xp": 40},
-    {"text": "সকালের জিকির আজকার",            "cat": "dhikr",     "xp": 20},
-    {"text": "Django পড়া বা প্র্যাকটিস",     "cat": "career",    "xp": 50},
-    {"text": "WordPress/Fiverr কাজ",           "cat": "career",    "xp": 40},
-    {"text": "ইংরেজি চর্চা — ১৫ মিনিট",      "cat": "career",    "xp": 25},
-    {"text": "সকালে হাঁটা বা ব্যায়াম",       "cat": "lifestyle", "xp": 20},
-    {"text": "পর্যাপ্ত পানি পান",             "cat": "lifestyle", "xp": 10},
-    {"text": "এশার নামাজ পড়া",               "cat": "namaz",     "xp": 25},
-    {"text": "রাতে সময়মতো ঘুমানো",           "cat": "lifestyle", "xp": 15},
-]
 
 
 class Command(BaseCommand):
