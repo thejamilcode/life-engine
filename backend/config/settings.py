@@ -141,23 +141,13 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 # ─── EMAIL / OTP ─────────────────────────────────────────────
-# Production (Railway/Render): SMTP ports 587/465 are blocked on free tiers.
-# Use BREVO_API_KEY or RESEND_API_KEY (HTTPS) instead. SMTP works for local dev.
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '30'))
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
-# Gmail app passwords are often copied with spaces — strip them.
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '')
-EMAIL_SENDER_NAME = os.environ.get('EMAIL_SENDER_NAME', 'Life Engine')
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '').strip()
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '').strip()
-DEFAULT_FROM_EMAIL = os.environ.get(
-    'DEFAULT_FROM_EMAIL',
-    f'{EMAIL_SENDER_NAME} <{EMAIL_HOST_USER}>' if EMAIL_HOST_USER else 'Life Engine <noreply@lifeengine.app>',
-)
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@lifeengine.app')
 
 # OTP expires in 10 minutes
 OTP_EXPIRY_MINUTES = 10

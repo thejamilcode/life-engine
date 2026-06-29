@@ -1,10 +1,10 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.core.management.base import BaseCommand, CommandError
-
-from accounts.email_service import is_email_configured, send_email
 
 
 class Command(BaseCommand):
-    help = "Send a test email using the configured email backend."
+    help = "Send a test email using the configured SMTP settings."
 
     def add_arguments(self, parser):
         parser.add_argument("recipient", help="Email address that should receive the test email.")
@@ -12,16 +12,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         recipient = options["recipient"]
 
-        if not is_email_configured():
-            raise CommandError(
-                "No email backend configured. Set BREVO_API_KEY or RESEND_API_KEY "
-                "(production) or EMAIL_HOST_USER + EMAIL_HOST_PASSWORD (local SMTP)."
-            )
+        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+            raise CommandError("EMAIL_HOST_USER and EMAIL_HOST_PASSWORD must be set.")
 
-        backend = send_email(
-            recipient=recipient,
+        sent = send_mail(
             subject="Life Engine email test",
-            message="If you received this, email delivery is configured correctly.",
+            message="If you received this, Gmail SMTP is configured correctly.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient],
+            fail_silently=False,
         )
 
-        self.stdout.write(self.style.SUCCESS(f"Test email sent to {recipient} via {backend}"))
+        if sent != 1:
+            raise CommandError("Django did not report a successful email send.")
+
+        self.stdout.write(self.style.SUCCESS(f"Test email sent to {recipient}"))

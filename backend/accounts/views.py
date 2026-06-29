@@ -4,13 +4,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password, check_password
 from django.conf import settings as django_settings
 from django.db import DatabaseError
 import random
 import string
 
-from .email_service import build_otp_email, send_email
 from .models import Profile, OTPVerification
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, ProfileSerializer
 
@@ -31,9 +31,35 @@ def _generate_otp():
 
 
 def _send_otp_email(email, otp, name=''):
-    """Send OTP email via HTTPS API (production) or SMTP (local dev)."""
-    subject, message = build_otp_email(otp, name)
-    send_email(email, subject, message)
+    """Send a nicely formatted OTP email via Gmail SMTP."""
+    if not django_settings.EMAIL_HOST_USER or not django_settings.EMAIL_HOST_PASSWORD:
+        raise RuntimeError('EMAIL_HOST_USER and EMAIL_HOST_PASSWORD must be set on the server.')
+
+    greeting = f"আস্সালামু আলাইকুম {name}," if name else "আস্সালামু আলাইকুম,"
+    subject = f"🔐 Life Engine — আপনার OTP কোড: {otp}"
+    message = f"""
+{greeting}
+
+আপনার Life Engine অ্যাকাউন্ট যাচাই করতে নিচের OTP কোডটি ব্যবহার করুন:
+
+  ━━━━━━━━━━━━━━━━━━━
+      {otp}
+  ━━━━━━━━━━━━━━━━━━━
+
+⏱️  এই কোডটি {django_settings.OTP_EXPIRY_MINUTES} মিনিটের মধ্যে মেয়াদ শেষ হবে।
+
+যদি আপনি এই রেজিস্ট্রেশন না করে থাকেন, তাহলে এই ইমেইলটি উপেক্ষা করুন।
+
+আল্লাহ হাফেজ 🤲
+Life Engine Team
+    """
+    send_mail(
+        subject=subject,
+        message=message.strip(),
+        from_email=django_settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+        fail_silently=False,
+    )
 
 
 # ─────────────────────────── AUTH VIEWS ───────────────────────────
