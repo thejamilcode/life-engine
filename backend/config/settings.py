@@ -67,8 +67,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # ─── DATABASE ─────────────────────────────────────────────────
 DATABASE_URL = os.environ.get('DATABASE_URL', '')
+USE_SQLITE = os.environ.get('USE_SQLITE', 'False') == 'True'
 
-if DATABASE_URL:
+if DATABASE_URL and not USE_SQLITE:
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
