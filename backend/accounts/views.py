@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password, check_password
 from django.conf import settings as django_settings
+from django.db import DatabaseError
 import random
 import string
 
@@ -31,6 +32,9 @@ def _generate_otp():
 
 def _send_otp_email(email, otp, name=''):
     """Send a nicely formatted OTP email via Gmail SMTP."""
+    if not django_settings.EMAIL_HOST_USER or not django_settings.EMAIL_HOST_PASSWORD:
+        raise RuntimeError('EMAIL_HOST_USER and EMAIL_HOST_PASSWORD must be set on the server.')
+
     greeting = f"আস্সালামু আলাইকুম {name}," if name else "আস্সালামু আলাইকুম,"
     subject = f"🔐 Life Engine — আপনার OTP কোড: {otp}"
     message = f"""
@@ -79,25 +83,28 @@ def send_otp_view(request):
         return Response({'error': 'username, email এবং password আবশ্যক।'}, status=400)
     if len(password) < 6:
         return Response({'error': 'Password কমপক্ষে ৬ অক্ষরের হতে হবে।'}, status=400)
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'এই username টি ইতিমধ্যে ব্যবহৃত হয়েছে।'}, status=400)
-    if User.objects.filter(email=email).exists():
-        return Response({'error': 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট আছে।'}, status=400)
+    try:
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'এই username টি ইতিমধ্যে ব্যবহৃত হয়েছে।'}, status=400)
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট আছে।'}, status=400)
 
-    # Generate OTP
-    otp = _generate_otp()
+        # Generate OTP
+        otp = _generate_otp()
 
-    # Save/update pending OTP record
-    OTPVerification.objects.update_or_create(
-        email=email,
-        defaults={
-            'username': username,
-            'name':     name,
-            'password': make_password(password),   # hash immediately
-            'otp_code': otp,
-            'attempts': 0,
-        }
-    )
+        # Save/update pending OTP record
+        OTPVerification.objects.update_or_create(
+            email=email,
+            defaults={
+                'username': username,
+                'name':     name,
+                'password': make_password(password),   # hash immediately
+                'otp_code': otp,
+                'attempts': 0,
+            }
+        )
+    except DatabaseError as e:
+        return Response({'error': f'Database connection or migration problem: {str(e)}'}, status=500)
 
     # Send email
     try:

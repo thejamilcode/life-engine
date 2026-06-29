@@ -78,6 +78,9 @@ if DATABASE_URL and not USE_SQLITE:
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
 else:
+    if not DEBUG and not USE_SQLITE:
+        raise RuntimeError('DATABASE_URL must be set in production, or set USE_SQLITE=True explicitly.')
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
