@@ -45,3 +45,15 @@ export const getMe = async () => {
   const response = await apiClient.get('/auth/me/')
   return response.data
 }
+
+// Password Reset Step 1: Send OTP to Gmail
+export const sendForgotPasswordOTP = async (email_or_username) => {
+  const response = await apiClient.post('/auth/forgot-password/', { email_or_username })
+  return response.data
+}
+
+// Password Reset Step 2: Verify OTP and save new password
+export const resetPassword = async (email, otp_code, new_password) => {
+  const response = await apiClient.post('/auth/reset-password/', { email, otp_code, new_password })
+  return response.data
+}

@@ -23,7 +23,9 @@ apiClient.interceptors.request.use(
       config.url.includes('/auth/login/') ||
       config.url.includes('/auth/register/') ||
       config.url.includes('/auth/send-otp/') ||
-      config.url.includes('/auth/verify-otp/')
+      config.url.includes('/auth/verify-otp/') ||
+      config.url.includes('/auth/forgot-password/') ||
+      config.url.includes('/auth/reset-password/')
     )
 
     if (!isPublicRoute) {
@@ -45,7 +47,9 @@ apiClient.interceptors.response.use(
       error.config.url.includes('/auth/login/') ||
       error.config.url.includes('/auth/register/') ||
       error.config.url.includes('/auth/send-otp/') ||
-      error.config.url.includes('/auth/verify-otp/')
+      error.config.url.includes('/auth/verify-otp/') ||
+      error.config.url.includes('/auth/forgot-password/') ||
+      error.config.url.includes('/auth/reset-password/')
     )
 
     // পাবলিক রাউটে 401 হলে লগইনে রিডাইরেক্ট করার প্রয়োজন নেই
