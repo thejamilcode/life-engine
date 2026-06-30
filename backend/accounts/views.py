@@ -72,50 +72,56 @@ def send_otp_view(request):
     Body: { username, email, name, password }
     Generates OTP, saves pending user data, sends email.
     """
-    from .models import User
-    username = request.data.get('username', '').strip()
-    email    = request.data.get('email', '').strip().lower()
-    name     = request.data.get('name', '').strip()
-    password = request.data.get('password', '')
-
-    # Validation
-    if not username or not email or not password:
-        return Response({'error': 'username, email এবং password আবশ্যক।'}, status=400)
-    if len(password) < 6:
-        return Response({'error': 'Password কমপক্ষে ৬ অক্ষরের হতে হবে।'}, status=400)
     try:
-        if User.objects.filter(username=username).exists():
-            return Response({'error': 'এই username টি ইতিমধ্যে ব্যবহৃত হয়েছে।'}, status=400)
-        if User.objects.filter(email=email).exists():
-            return Response({'error': 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট আছে।'}, status=400)
+        from .models import User
+        username = request.data.get('username', '').strip()
+        email    = request.data.get('email', '').strip().lower()
+        name     = request.data.get('name', '').strip()
+        password = request.data.get('password', '')
 
-        # Generate OTP
-        otp = _generate_otp()
+        # Validation
+        if not username or not email or not password:
+            return Response({'error': 'username, email এবং password আবশ্যক।'}, status=400)
+        if len(password) < 6:
+            return Response({'error': 'Password কমপক্ষে ৬ অক্ষরের হতে হবে।'}, status=400)
+        try:
+            if User.objects.filter(username=username).exists():
+                return Response({'error': 'এই username টি ইতিমধ্যে ব্যবহৃত হয়েছে।'}, status=400)
+            if User.objects.filter(email=email).exists():
+                return Response({'error': 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট আছে।'}, status=400)
 
-        # Save/update pending OTP record
-        OTPVerification.objects.update_or_create(
-            email=email,
-            defaults={
-                'username': username,
-                'name':     name,
-                'password': make_password(password),   # hash immediately
-                'otp_code': otp,
-                'attempts': 0,
-            }
-        )
-    except DatabaseError as e:
-        return Response({'error': f'Database connection or migration problem: {str(e)}'}, status=500)
+            # Generate OTP
+            otp = _generate_otp()
 
-    # Send email
-    try:
-        _send_otp_email(email, otp, name)
+            # Save/update pending OTP record
+            OTPVerification.objects.update_or_create(
+                email=email,
+                defaults={
+                    'username': username,
+                    'name':     name,
+                    'password': make_password(password),   # hash immediately
+                    'otp_code': otp,
+                    'attempts': 0,
+                }
+            )
+        except DatabaseError as e:
+            return Response({'error': f'Database connection or migration problem: {str(e)}'}, status=500)
+
+        # Send email
+        try:
+            _send_otp_email(email, otp, name)
+        except Exception as e:
+            return Response({'error': f'ইমেইল পাঠাতে সমস্যা হয়েছে: {str(e)}'}, status=500)
+
+        otp_minutes = getattr(django_settings, 'OTP_EXPIRY_MINUTES', 10)
+        return Response({
+            'message': f'OTP কোড {email} এ পাঠানো হয়েছে। {otp_minutes} মিনিটের মধ্যে যাচাই করুন।',
+            'email': email,
+        }, status=200)
+
     except Exception as e:
-        return Response({'error': f'ইমেইল পাঠাতে সমস্যা হয়েছে: {str(e)}'}, status=500)
-
-    return Response({
-        'message': f'OTP কোড {email} এ পাঠানো হয়েছে। {django_settings.OTP_EXPIRY_MINUTES} মিনিটের মধ্যে যাচাই করুন।',
-        'email': email,
-    }, status=200)
+        import traceback
+        return Response({'error': f'Server error: {str(e)}', 'trace': traceback.format_exc()}, status=500)
 
 
 @api_view(['POST'])
