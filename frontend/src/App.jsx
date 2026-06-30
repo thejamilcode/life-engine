@@ -19,7 +19,7 @@ function ProtectedRoute({ children }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
+          <div className="w-10 h-10 border-4 border-teal-500/30 border-t-teal-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-sm text-slate-500 dark:text-slate-400">লোড হচ্ছে...</p>
         </div>
       </div>
@@ -32,7 +32,15 @@ function ProtectedRoute({ children }) {
 // Public Route — already logged in হলে dashboard এ redirect
 function PublicRoute({ children }) {
   const { user, loading } = useAuth()
-  if (loading) return null
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="w-10 h-10 border-4 border-teal-500/30 border-t-teal-500 rounded-full animate-spin mx-auto"></div>
+      </div>
+    )
+  }
+
   return user ? <Navigate to="/" replace /> : children
 }
 

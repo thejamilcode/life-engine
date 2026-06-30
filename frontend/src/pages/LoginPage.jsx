@@ -4,9 +4,9 @@
 // ====================================================
 
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
-  Sparkles, LogIn, Eye, EyeOff, KeyRound,
+  Sparkles, LogIn, Eye, EyeOff,
   Mail, Send, CheckCircle2, Loader2, ArrowLeft
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -15,6 +15,7 @@ import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const navigate = useNavigate()
   
   // App Mode: 'login' | 'forgot' (request OTP) | 'reset' (verify & reset)
   const [mode, setMode]             = useState('login') 
@@ -40,8 +41,7 @@ export default function LoginPage() {
     try {
       await login(form.username, form.password)
       toast.success('স্বাগতম! আলহামদুলিল্লাহ 🎉')
-      // Redirect to home/dashboard
-      window.location.href = '/'
+      navigate('/', { replace: true })
     } catch (err) {
       toast.error('ভুল username বা password')
     } finally {
