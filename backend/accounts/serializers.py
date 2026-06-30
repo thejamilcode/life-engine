@@ -48,7 +48,7 @@ class LoginSerializer(serializers.Serializer):
         username_or_email = data.get('username', '').strip()
         password = data.get('password', '')
 
-        # Support email login
+        # Support case-insensitive email and username login
         if '@' in username_or_email:
             try:
                 user_obj = User.objects.get(email__iexact=username_or_email)
@@ -56,7 +56,11 @@ class LoginSerializer(serializers.Serializer):
             except User.DoesNotExist:
                 username = username_or_email
         else:
-            username = username_or_email
+            try:
+                user_obj = User.objects.get(username__iexact=username_or_email)
+                username = user_obj.username
+            except User.DoesNotExist:
+                username = username_or_email
 
         user = authenticate(username=username, password=password)
         if not user:
