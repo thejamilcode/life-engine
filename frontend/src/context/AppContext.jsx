@@ -100,12 +100,32 @@ export function AppProvider({ children }) {
       ))
       await loadStats()
       if (result.completed) {
+        // Play a soft checkmark chime
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)()
+          const playNote = (freq, start, duration, vol = 0.18) => {
+            const osc  = ctx.createOscillator()
+            const gain = ctx.createGain()
+            osc.type = 'sine'
+            osc.frequency.setValueAtTime(freq, start)
+            gain.gain.setValueAtTime(vol, start)
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration)
+            osc.connect(gain)
+            gain.connect(ctx.destination)
+            osc.start(start)
+            osc.stop(start + duration)
+          }
+          const now = ctx.currentTime
+          playNote(660, now,        0.12)
+          playNote(880, now + 0.10, 0.18)
+        } catch (_) {}
         toast.success(`+${result.xp_earned} XP অর্জিত! 🎯`)
       }
     } catch (err) {
       toast.error('সমস্যা হয়েছে, আবার চেষ্টা করুন')
     }
   }
+
 
   const resetDay = async () => {
     try {
